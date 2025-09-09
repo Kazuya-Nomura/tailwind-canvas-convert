@@ -47,16 +47,21 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        fire: {
+          ember: "hsl(15 90% 55%)",
+          flame: "hsl(35 85% 50%)",
+          glow: "hsl(45 80% 55%)",
         },
+      },
+      backgroundImage: {
+        'fire-gradient': 'var(--gradient-fire)',
+        'smoke-gradient': 'var(--gradient-smoke)',
+        'ember-gradient': 'var(--gradient-ember)',
+      },
+      boxShadow: {
+        'fire': 'var(--shadow-fire)',
+        'smoke': 'var(--shadow-smoke)',
+        'text-glow': 'var(--shadow-text)',
       },
       borderRadius: {
         lg: "var(--radius)",
