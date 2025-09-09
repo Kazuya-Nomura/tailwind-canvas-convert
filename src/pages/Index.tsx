@@ -1,10 +1,10 @@
-import FireTransition from "@/components/FireTransition";
+import BurningPaperTransition from "@/components/BurningPaperTransition";
 import ScrollContent from "@/components/ScrollContent";
 
 const Index = () => {
   return (
     <div className="relative min-h-[200vh] bg-background">
-      <FireTransition />
+      <BurningPaperTransition />
       <ScrollContent />
     </div>
   );

@@ -1,56 +1,109 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ChevronDown } from 'lucide-react';
 
 const ScrollContent = () => {
-  const { scrollYProgress } = useScroll();
-  
-  // Transform values for text animations
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
-  const scrollMsgOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const contentOpacity = useTransform(scrollYProgress, [0.2, 0.4], [0, 1]);
+  const heroRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLElement>(null);
+  const scrollMsgRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const hero = heroRef.current;
+    const content = contentRef.current;
+    const scrollMsg = scrollMsgRef.current;
+
+    if (!hero || !content || !scrollMsg) return;
+
+    // Hero section animation
+    gsap.to(hero, {
+      opacity: 0,
+      scale: 0.8,
+      scrollTrigger: {
+        trigger: document.body,
+        start: "top top",
+        end: "50% top",
+        scrub: true
+      }
+    });
+
+    // Scroll message fade out
+    gsap.to(scrollMsg, {
+      opacity: 0,
+      scrollTrigger: {
+        trigger: document.body,
+        start: "top top",
+        end: "20% top",
+        scrub: true
+      }
+    });
+
+    // Content section reveal
+    gsap.fromTo(content, 
+      { opacity: 0 },
+      {
+        opacity: 1,
+        scrollTrigger: {
+          trigger: document.body,
+          start: "40% top",
+          end: "60% top",
+          scrub: true
+        }
+      }
+    );
+
+    // Content cards animation
+    const cards = content.querySelectorAll('.content-card');
+    cards.forEach((card, index) => {
+      gsap.fromTo(card,
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          scrollTrigger: {
+            trigger: card,
+            start: "top 80%",
+            end: "top 50%",
+            scrub: true
+          }
+        }
+      );
+    });
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
+  }, []);
 
   return (
-    <div className="relative z-10">
+    <div className="relative z-0">
       {/* Hero Section */}
-      <motion.section 
+      <section 
+        ref={heroRef}
         className="min-h-screen flex flex-col items-center justify-center text-center px-4"
-        style={{ opacity: heroOpacity, scale: heroScale }}
       >
-        <motion.h1 
-          className="text-6xl md:text-8xl font-bold text-foreground text-fire-glow mb-8"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-        >
-          HELLO <span className="inline-block animate-pulse">👋</span>
-        </motion.h1>
+        <h1 className="text-6xl md:text-8xl font-bold text-foreground mb-8">
+          HELLO <span className="inline-block animate-bounce">👋</span>
+        </h1>
         
-        <motion.div 
+        <div 
+          ref={scrollMsgRef}
           className="flex flex-col items-center space-y-4"
-          style={{ opacity: scrollMsgOpacity }}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.2 }}
         >
           <p className="text-xl text-muted-foreground">scroll me</p>
           <ChevronDown className="w-6 h-6 text-accent animate-bounce" />
-        </motion.div>
-      </motion.section>
+        </div>
+      </section>
 
       {/* Content Section */}
-      <motion.section 
+      <section 
+        ref={contentRef}
         className="min-h-screen flex flex-col items-center justify-center px-4 py-16"
-        style={{ opacity: contentOpacity }}
       >
         <div className="max-w-4xl mx-auto space-y-8">
-          <motion.div 
-            className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-lg p-8 shadow-smoke"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
+          <div className="content-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-lg p-8 shadow-lg">
             <h2 className="text-3xl font-bold text-primary mb-6">How it's done</h2>
             <div className="space-y-4 text-foreground/90">
               <p>
@@ -64,15 +117,9 @@ const ScrollContent = () => {
                 While <strong>time</strong> and <strong>window size (resolution)</strong> are super easy to gather, for <strong>animation progress</strong> I use <a href="https://gsap.com/docs/v3/Plugins/ScrollTrigger/" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent/80 underline">GSAP ScrollTrigger</a> plugin.
               </p>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-lg p-8 shadow-smoke"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-          >
+          <div className="content-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-lg p-8 shadow-lg">
             <div className="space-y-4 text-foreground/90">
               <p>
                 Once the inputs are prepared, we pass them as uniforms to the shader.
@@ -82,15 +129,9 @@ const ScrollContent = () => {
                 The fragment shader is based on <a href="https://thebookofshaders.com/13/" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent/80 underline">Fractal Brownian Motion (fBm)</a> noise.
               </p>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-lg p-8 shadow-smoke"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            viewport={{ once: true }}
-          >
+          <div className="content-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-lg p-8 shadow-lg">
             <div className="space-y-4 text-foreground/90">
               <p>
                 First, we create a semi-transparent mask to define a contour of burning paper. It is basically a low-scale fBm noise with <strong>animation progress</strong> value used as a threshold.
@@ -104,15 +145,9 @@ const ScrollContent = () => {
                 The fire is done as another two fBm based functions, one for shape and one for color. Both have a higher scale and both are animated with <strong>time</strong> value instead of <strong>animation progress</strong>.
               </p>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            className="text-center pt-16"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.6 }}
-            viewport={{ once: true }}
-          >
+          <div className="text-center pt-16">
             <div className="flex justify-center space-x-4 text-sm text-muted-foreground">
               <a href="https://www.linkedin.com/in/ksenia-kondrashova/" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">linkedIn</a>
               <span>|</span>
@@ -120,9 +155,9 @@ const ScrollContent = () => {
               <span>|</span>
               <a href="https://twitter.com/uuuuuulala" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">twitter (X)</a>
             </div>
-          </motion.div>
+          </div>
         </div>
-      </motion.section>
+      </section>
     </div>
   );
 };
